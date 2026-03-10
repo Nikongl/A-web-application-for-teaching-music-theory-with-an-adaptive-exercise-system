@@ -1,0 +1,139 @@
+[
+    {
+        "model": "api.exercisetype",
+        "pk": 1,
+        "fields": {
+            "name": "Ноты",
+            "code": "notes",
+            "description": "Определение нот на нотном стане и клавиатуре",
+            "icon": "🎹",
+            "order": 1
+        }
+    },
+    {
+        "model": "api.exercisetype",
+        "pk": 2,
+        "fields": {
+            "name": "Интервалы",
+            "code": "intervals",
+            "description": "Определение музыкальных интервалов на слух",
+            "icon": "📏",
+            "order": 2
+        }
+    },
+    {
+        "model": "api.exercisetype",
+        "pk": 3,
+        "fields": {
+            "name": "Аккорды",
+            "code": "chords",
+            "description": "Определение аккордов и их обращений",
+            "icon": "🎸",
+            "order": 3
+        }
+    },
+    {
+        "model": "api.exercisetype",
+        "pk": 4,
+        "fields": {
+            "name": "Ритм",
+            "code": "rhythm",
+            "description": "Ритмические упражнения и диктанты",
+            "icon": "🥁",
+            "order": 4
+        }
+    },
+    {
+        "model": "api.difficultylevel",
+        "pk": 1,
+        "fields": {
+            "name": "Начинающий",
+            "code": "beginner",
+            "value": 1,
+            "description": "Простые упражнения для новичков",
+            "color": "green"
+        }
+    },
+    {
+        "model": "api.difficultylevel",
+        "pk": 2,
+        "fields": {
+            "name": "Средний",
+            "code": "intermediate",
+            "value": 2,
+            "description": "Упражнения средней сложности",
+            "color": "orange"
+        }
+    },
+    {
+        "model": "api.difficultylevel",
+        "pk": 3,
+        "fields": {
+            "name": "Продвинутый",
+            "code": "advanced",
+            "value": 3,
+            "description": "Сложные упражнения для опытных музыкантов",
+            "color": "red"
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 1,
+        "fields": {
+            "name": "Первые шаги",
+            "code": "first_session",
+            "description": "Выполнить первое упражнение",
+            "icon": "🎯",
+            "condition_type": "total_sessions",
+            "condition_value": 1
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 2,
+        "fields": {
+            "name": "Нотный мастер",
+            "code": "notes_master",
+            "description": "Правильно ответить на 100 вопросов по нотам",
+            "icon": "🎼",
+            "condition_type": "correct_notes",
+            "condition_value": 100
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 3,
+        "fields": {
+            "name": "Интервальный слух",
+            "code": "interval_expert",
+            "description": "Правильно определить 50 интервалов подряд",
+            "icon": "👂",
+            "condition_type": "interval_streak",
+            "condition_value": 50
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 4,
+        "fields": {
+            "name": "Аккорд-про",
+            "code": "chord_pro",
+            "description": "Освоить все типы аккордов на уровне 90%",
+            "icon": "🎹",
+            "condition_type": "chord_mastery",
+            "condition_value": 90
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 5,
+        "fields": {
+            "name": "Марафонец",
+            "code": "marathon",
+            "description": "Заниматься 7 дней подряд",
+            "icon": "🔥",
+            "condition_type": "streak_days",
+            "condition_value": 7
+        }
+    }
+]
