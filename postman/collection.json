@@ -1,0 +1,65 @@
+{
+  "info": {
+    "name": "Music App API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Exercise Types",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response is array', function() {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8000/api/exercise-types/"
+      }
+    },
+    {
+      "name": "Create Exercise Type",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function() {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Response has name', function() {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('name');",
+              "    pm.expect(response.name).to.equal('Test Type');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:8000/api/exercise-types/",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Test Type\",\n    \"code\": \"test\",\n    \"icon\": \"🎵\",\n    \"order\": 1\n}"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, labwork5 ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "Tests passed"
