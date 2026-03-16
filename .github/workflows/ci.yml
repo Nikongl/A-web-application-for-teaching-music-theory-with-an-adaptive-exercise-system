@@ -15,3 +15,17 @@ jobs:
         
       - name: Build Frontend
         run: docker build -t music-frontend ./frontend
+      
+      - name: Start containers
+        run: |
+          docker-compose up -d
+          sleep 15
+      
+      - name: Install Newman
+        run: npm install -g newman
+      
+      - name: Run Postman tests
+        run: newman run postman/collection.json
+      
+      - name: Stop containers
+        run: docker-compose down
