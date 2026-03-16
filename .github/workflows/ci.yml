@@ -1,12 +1,41 @@
-name: CI
+name: Build Docker Images
 
 on:
   push:
-    branches: [ main, labwork5 ]
+    branches: [ labwork5, main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - run: echo "Tests passed"
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build Backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: false
+          tags: music-backend:latest
+          load: true
+      
+      - name: Build Frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: false
+          tags: music-frontend:latest
+          load: true
+      
+      - name: Test images with docker-compose
+        run: |
+          docker-compose up -d
+          sleep 30
+          docker-compose ps
+          docker-compose down
