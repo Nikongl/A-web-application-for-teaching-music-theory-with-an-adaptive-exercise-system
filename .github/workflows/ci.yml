@@ -2,11 +2,40 @@ name: CI
 
 on:
   push:
-    branches: [ main, labwork5 ]
+    branches: [ labwork5, main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - run: echo "Tests passed"
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      
+      - name: Build Backend
+        run: docker build -t music-backend ./backend
+        
+      - name: Build Frontend
+        run: docker build -t music-frontend ./frontend
+      
+      - name: Start containers
+        run: |
+          docker-compose up -d
+          sleep 15
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install Newman
+        run: npm install -g newman
+      
+      - name: Run Postman tests
+        run: newman run postman/collection.json
+      
+      - name: Stop containers
+        run: docker-compose down
