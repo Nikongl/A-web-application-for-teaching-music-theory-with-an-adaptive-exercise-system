@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .models import ExerciseType, ExerciseConfig, ExerciseSession, UserProgress
 from .serializers import (
@@ -105,3 +106,60 @@ def progress_list(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    # ===== Template Method Pattern =====
+class BaseExerciseListView(APIView):
+    """
+    Базовый класс для списков упражнений.
+    Реализует шаблонный метод get().
+    """
+    def get_queryset(self):
+        """Должен быть переопределён в подклассе."""
+        raise NotImplementedError("Подклассы должны реализовать get_queryset")
+
+    def get_serializer_class(self):
+        """Должен быть переопределён в подклассе."""
+        raise NotImplementedError("Подклассы должны реализовать get_serializer_class")
+
+    def filter_queryset(self, queryset):
+        """
+        Хук для фильтрации. По умолчанию не фильтрует,
+        может быть переопределён в подклассе.
+        """
+        return queryset
+
+    def get(self, request):
+        """
+        Шаблонный метод: определяет скелет алгоритма.
+        1. Получить базовый queryset.
+        2. Применить фильтрацию.
+        3. Сериализовать данные.
+        4. Вернуть ответ.
+        """
+        queryset = self.get_queryset()
+        queryset = self.filter_queryset(queryset)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ExerciseTypeListView(BaseExerciseListView):
+    """Конкретный класс для списка типов упражнений."""
+    
+    def get_queryset(self):
+        return ExerciseType.objects.all().order_by('order')
+    
+    def get_serializer_class(self):
+        return ExerciseTypeSerializer
+
+
+class ExerciseConfigListView(BaseExerciseListView):
+    """Конкретный класс для списка конфигураций."""
+    
+    def get_queryset(self):
+        return ExerciseConfig.objects.all().order_by('-created_at')
+    
+    def get_serializer_class(self):
+        return ExerciseConfigSerializer

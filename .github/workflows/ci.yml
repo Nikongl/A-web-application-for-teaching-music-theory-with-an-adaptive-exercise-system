@@ -7,35 +7,50 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
-      
+
       - name: Build Backend
         run: docker build -t music-backend ./backend
-        
+
       - name: Build Frontend
         run: docker build -t music-frontend ./frontend
-      
+
       - name: Start containers
+        run: docker-compose up -d
+
+      - name: Wait for backend
         run: |
-          docker-compose up -d
-          sleep 15
-      
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/api/exercise-types/ > /dev/null; then
+              echo "Backend is ready"
+              break
+            fi
+            echo "Waiting for backend... ($i/30)"
+            sleep 2
+          done
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+
       - name: Install Newman
         run: npm install -g newman
-      
+
       - name: Run Postman tests
         run: newman run postman/collection.json
-      
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker-compose logs
+
       - name: Stop containers
+        if: always()
         run: docker-compose down
