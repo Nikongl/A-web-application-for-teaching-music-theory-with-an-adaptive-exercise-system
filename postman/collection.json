@@ -1,25 +1,220 @@
 {
   "info": {
-    "name": "Music App API Tests (minimal)",
+    "name": "Music App API Tests (full)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Get exercise types",
-      "event": [
+      "name": "Exercise Types",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Status 200', function() { pm.response.to.have.status(200); });"
-            ]
+          "name": "GET all exercise types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/exercise-types/"
+          }
+        },
+        {
+          "name": "POST create exercise type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Response has name', () => pm.expect(pm.response.json().name).to.eql('Временный тип'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/exercise-types/",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Временный тип\",\n  \"code\": \"temp\",\n  \"icon\": \"🎵\",\n  \"order\": 99\n}"
+            }
+          }
+        },
+        {
+          "name": "GET specific exercise type by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has id', () => pm.expect(pm.response.json()).to.have.property('id'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/exercise-types/1/"
+          }
+        },
+        {
+          "name": "PUT update exercise type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Name updated', () => pm.expect(pm.response.json().name).to.eql('Обновлённый тип'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:8000/api/exercise-types/1/",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Обновлённый тип\",\n  \"code\": \"test_type\",\n  \"icon\": \"🎹\",\n  \"order\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE exercise type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:8000/api/exercise-types/1/"
+          }
+        },
+        {
+          "name": "GET exercise type - 404 not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/exercise-types/99999/"
+          }
+        },
+        {
+          "name": "POST create exercise type - bad request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/exercise-types/",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"bad\",\n  \"icon\": \"🎵\"\n}"
+            }
           }
         }
-      ],
-      "request": {
-        "method": "GET",
-        "url": "http://localhost:8000/api/exercise-types/"
-      }
+      ]
+    },
+    {
+      "name": "Exercise Configs",
+      "item": [
+        {
+          "name": "GET all exercise configs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/exercise-configs/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sessions",
+      "item": [
+        {
+          "name": "GET all sessions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/sessions/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Progress",
+      "item": [
+        {
+          "name": "GET all progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8000/api/progress/"
+          }
+        }
+      ]
     }
   ]
 }

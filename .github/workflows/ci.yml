@@ -32,9 +32,14 @@ jobs:
               break
             fi
             echo "Waiting for backend... $i"
-            docker-compose logs backend  # для диагностики
-            sleep 5
+            sleep 3
           done
+
+      - name: Create test data
+        run: |
+          curl -X POST http://localhost:8000/api/exercise-types/ \
+            -H "Content-Type: application/json" \
+            -d '{"name": "Тестовый тип", "code": "test_type", "icon": "🎵", "order": 1}'
 
       - name: Install Node.js
         uses: actions/setup-node@v4
