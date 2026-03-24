@@ -15,4 +15,7 @@ urlpatterns = [
     
     # Progress
     path('progress/', views.progress_list, name='progress-list'),
+
+    path('exercise-types-template/', views.ExerciseTypeListView.as_view(), name='exercise-types-template'),
+    path('exercise-configs-template/', views.ExerciseConfigListView.as_view(), name='exercise-configs-template'),
 ]

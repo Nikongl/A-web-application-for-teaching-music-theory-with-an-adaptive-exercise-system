@@ -5,37 +5,56 @@ on:
     branches: [ labwork5, main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
-      
-      - name: Build Backend
+
+      - name: Build Backend image
         run: docker build -t music-backend ./backend
-        
-      - name: Build Frontend
+
+      - name: Build Frontend image
         run: docker build -t music-frontend ./frontend
-      
+
       - name: Start containers
+        run: docker-compose up -d
+
+      - name: Wait for backend
         run: |
-          docker-compose up -d
-          sleep 15
-      
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/api/exercise-types/ > /dev/null; then
+              echo "Backend is ready"
+              break
+            fi
+            echo "Waiting for backend... $i"
+            sleep 3
+          done
+
+      - name: Create test data
+        run: |
+          curl -X POST http://localhost:8000/api/exercise-types/ \
+            -H "Content-Type: application/json" \
+            -d '{"name": "Тестовый тип", "code": "test_type", "icon": "🎵", "order": 1}'
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+
       - name: Install Newman
         run: npm install -g newman
-      
+
       - name: Run Postman tests
         run: newman run postman/collection.json
-      
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker-compose logs
+
       - name: Stop containers
         run: docker-compose down
