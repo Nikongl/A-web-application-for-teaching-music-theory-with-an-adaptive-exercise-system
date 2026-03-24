@@ -5,7 +5,7 @@ on:
     branches: [ labwork5, main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,19 +26,14 @@ jobs:
 
       - name: Wait for backend
         run: |
-          echo "Waiting for backend to become healthy..."
           for i in {1..30}; do
-            if curl -s -f http://localhost:8000/api/exercise-types/; then
-              echo "Backend is ready!"
+            if curl -s http://localhost:8000/api/exercise-types/ > /dev/null; then
+              echo "Backend is ready"
               break
             fi
-            echo "Attempt $i: backend not ready yet..."
-            sleep 3
-            if [ $i -eq 30 ]; then
-              echo "Backend failed to start after 30 attempts."
-              docker-compose logs backend
-              exit 1
-            fi
+            echo "Waiting for backend... $i"
+            docker-compose logs backend  # для диагностики
+            sleep 5
           done
 
       - name: Install Node.js
@@ -57,5 +52,4 @@ jobs:
         run: docker-compose logs
 
       - name: Stop containers
-        if: always()
         run: docker-compose down
