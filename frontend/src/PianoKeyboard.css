@@ -1,0 +1,88 @@
+.piano-container {
+  background: #1e2a3a;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 20px 0;
+  overflow-x: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.piano-keyboard {
+  display: flex;
+  min-width: max-content;
+  background: #0a0f14;
+  border-radius: 12px;
+  padding: 10px;
+}
+.piano-key-white {
+  width: 55px;
+  height: 180px;
+  background: linear-gradient(145deg, #fff 0%, #f0f0f0 100%);
+  border: 1px solid #ccc;
+  border-radius: 0 0 8px 8px;
+  margin: 0 1px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.05s linear;
+}
+.piano-key-white:hover:not(:disabled) {
+  background: #e8e8e8;
+  transform: translateY(-2px);
+}
+.piano-key-white.pressed {
+  background: #4caf50;
+  transform: translateY(4px);
+}
+.piano-key-black {
+  width: 38px;
+  height: 110px;
+  background: linear-gradient(145deg, #2c2c2c 0%, #1a1a1a 100%);
+  border: 1px solid #000;
+  border-radius: 0 0 6px 6px;
+  margin-left: -19px;
+  margin-right: -19px;
+  z-index: 2;
+  cursor: pointer;
+  position: relative;
+}
+.piano-key-black:hover:not(:disabled) {
+  background: #3a3a3a;
+  transform: translateY(-2px);
+}
+.piano-key-black.pressed {
+  background: #4caf50;
+  transform: translateY(3px);
+}
+.note-name {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+}
+.piano-key-black .note-name {
+  color: #aaa;
+  bottom: 6px;
+}
+@media (max-width: 768px) {
+  .piano-key-white { width: 40px; height: 130px; }
+  .piano-key-black { width: 28px; height: 80px; margin-left: -14px; margin-right: -14px; }
+  .note-name { font-size: 8px; }
+}
+.piano-key-white.highlight-green {
+  background: #4caf50 !important;
+  box-shadow: 0 0 10px #4caf50;
+}
+.piano-key-black.highlight-green {
+  background: #2e7d32 !important;
+  box-shadow: 0 0 10px #4caf50;
+}
+.piano-key-white.highlight-red {
+  background: #f44336 !important;
+  box-shadow: 0 0 10px #f44336;
+}
+.piano-key-black.highlight-red {
+  background: #c62828 !important;
+  box-shadow: 0 0 10px #f44336;
+}

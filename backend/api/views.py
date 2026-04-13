@@ -1,165 +1,225 @@
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-from .models import ExerciseType, ExerciseConfig, ExerciseSession, UserProgress
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Count, Sum, Q
+from django.utils import timezone
+from datetime import timedelta
+from .models import ExerciseSession, UserProgress, User
+
+from rest_framework import generics, permissions
+from django.db import models
+from .models import ExerciseType, DifficultyLevel, ExerciseConfig, ExerciseSession, UserProgress
 from .serializers import (
-    ExerciseTypeSerializer, ExerciseConfigSerializer,
-    ExerciseSessionSerializer, UserProgressSerializer
+    ExerciseTypeSerializer, DifficultyLevelSerializer,
+    ExerciseConfigSerializer, ExerciseSessionSerializer, UserProgressSerializer
 )
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import F, Q, Sum, Count, FloatField, Value
+from django.db.models.functions import Coalesce
+from .models import UserProgress, ExerciseSession, User
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
 
-@api_view(['GET', 'POST'])
-def exercise_type_list(request):
-    """GET: список типов, POST: создать тип"""
-    if request.method == 'GET':
-        types = ExerciseType.objects.all().order_by('order')
-        serializer = ExerciseTypeSerializer(types, many=True)
-        return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        serializer = ExerciseTypeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def exercise_type_detail(request, pk):
-    """GET, PUT, DELETE для конкретного типа"""
-    exercise_type = get_object_or_404(ExerciseType, pk=pk)
-    
-    if request.method == 'GET':
-        serializer = ExerciseTypeSerializer(exercise_type)
-        return Response(serializer.data)
-    
-    elif request.method == 'PUT':
-        serializer = ExerciseTypeSerializer(exercise_type, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    elif request.method == 'DELETE':
-        exercise_type.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-@api_view(['GET', 'POST'])
-def exercise_config_list(request):
-    """GET: список конфигураций, POST: создать конфигурацию"""
-    if request.method == 'GET':
-        configs = ExerciseConfig.objects.all().order_by('-created_at')
-        serializer = ExerciseConfigSerializer(configs, many=True)
-        return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        serializer = ExerciseConfigSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def exercise_config_detail(request, pk):
-    """GET, PUT, DELETE для конкретной конфигурации"""
-    config = get_object_or_404(ExerciseConfig, pk=pk)
-    
-    if request.method == 'GET':
-        serializer = ExerciseConfigSerializer(config)
-        return Response(serializer.data)
-    
-    elif request.method == 'PUT':
-        serializer = ExerciseConfigSerializer(config, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    elif request.method == 'DELETE':
-        config.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-@api_view(['GET', 'POST'])
-def session_list(request):
-    if request.method == 'GET':
-        sessions = ExerciseSession.objects.all().order_by('-started_at')
-        serializer = ExerciseSessionSerializer(sessions, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        serializer = ExerciseSessionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET', 'POST'])
-def progress_list(request):
-    if request.method == 'GET':
-        progress = UserProgress.objects.all()
-        serializer = UserProgressSerializer(progress, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        serializer = UserProgressSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
-
-    # ===== Template Method Pattern =====
-class BaseExerciseListView(APIView):
-    """
-    Базовый класс для списков упражнений.
-    Реализует шаблонный метод get().
-    """
-    def get_queryset(self):
-        """Должен быть переопределён в подклассе."""
-        raise NotImplementedError("Подклассы должны реализовать get_queryset")
-
-    def get_serializer_class(self):
-        """Должен быть переопределён в подклассе."""
-        raise NotImplementedError("Подклассы должны реализовать get_serializer_class")
-
-    def filter_queryset(self, queryset):
-        """
-        Хук для фильтрации. По умолчанию не фильтрует,
-        может быть переопределён в подклассе.
-        """
-        return queryset
+class UserDetailedStatisticsView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """
-        Шаблонный метод: определяет скелет алгоритма.
-        1. Получить базовый queryset.
-        2. Применить фильтрацию.
-        3. Сериализовать данные.
-        4. Вернуть ответ.
-        """
-        queryset = self.get_queryset()
-        queryset = self.filter_queryset(queryset)
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(queryset, many=True)
-        return Response(serializer.data)
+        user = request.user
+        # Общая статистика из сессий
+        sessions = ExerciseSession.objects.filter(user=user, status='completed')
+        total_sessions = sessions.count()
+        total_answered = sessions.aggregate(total=Sum('answered_questions'))['total'] or 0
+        total_correct = sessions.aggregate(total=Sum('correct_answers'))['total'] or 0
+        overall_accuracy = round((total_correct / total_answered * 100) if total_answered > 0 else 0)
+
+        # Прогресс по элементам
+        progress_notes = UserProgress.objects.filter(user=user, exercise_type=1).annotate(
+            accuracy=Coalesce(F('correct_attempts') * 100.0 / F('total_attempts'), Value(0.0), output_field=FloatField())
+        ).order_by('accuracy')[:5]
+        progress_intervals = UserProgress.objects.filter(user=user, exercise_type=2).annotate(
+            accuracy=Coalesce(F('correct_attempts') * 100.0 / F('total_attempts'), Value(0.0), output_field=FloatField())
+        ).order_by('accuracy')[:5]
+        progress_chords = UserProgress.objects.filter(user=user, exercise_type=3).annotate(
+            accuracy=Coalesce(F('correct_attempts') * 100.0 / F('total_attempts'), Value(0.0), output_field=FloatField())
+        ).order_by('accuracy')[:5]
+
+        def serialize(progress_list):
+            return [{'name': p.element_name, 'accuracy': round(p.accuracy, 1), 'attempts': p.total_attempts} for p in progress_list]
+
+        return Response({
+            'total_sessions': total_sessions,
+            'overall_accuracy': overall_accuracy,
+            'user_level': user.level,
+            'experience_points': user.experience_points,
+            'weak_notes': serialize(progress_notes),
+            'weak_intervals': serialize(progress_intervals),
+            'weak_chords': serialize(progress_chords),
+        })
+
+class UserStatisticsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        # Все сессии пользователя (завершённые)
+        sessions = ExerciseSession.objects.filter(user=user, status='completed')
+        total_sessions = sessions.count()
+        total_questions = sum(s.answered_questions for s in sessions)
+        correct_questions = sum(s.correct_answers for s in sessions)
+        overall_accuracy = round((correct_questions / total_questions * 100) if total_questions > 0 else 0)
+
+        # Данные по дням (последние 7 дней)
+        today = timezone.now().date()
+        daily_labels = []
+        daily_correct = []
+        daily_total = []
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            daily_labels.append(day.strftime('%d.%m'))
+            day_sessions = sessions.filter(started_at__date=day)
+            day_correct = sum(s.correct_answers for s in day_sessions)
+            day_total = sum(s.answered_questions for s in day_sessions)
+            daily_correct.append(day_correct)
+            daily_total.append(day_total)
+
+        # Распределение по типам упражнений (через UserProgress или через config)
+        # Упрощённо: считаем количество вопросов по exercise_type
+        # (нужно будет добавить поле exercise_type в Question или использовать UserProgress)
+        # Пока сделаем заглушку: вернём пустые данные. Реализуйте позже.
+        type_labels = ['Ноты', 'Интервалы', 'Аккорды']
+        type_counts = [0, 0, 0]
+        # Здесь можно запросить статистику из UserProgress или из сессий через config.exercise_type
+
+        # Слабые темы – из UserProgress, где mastery_level < 0.6
+        weak_progress = UserProgress.objects.filter(user=user, mastery_level__lt=0.6).order_by('mastery_level')[:5]
+        weak_topics = [
+            {
+                'name': p.element_name,
+                'accuracy': round(p.success_rate),
+                'attempts': p.total_attempts,
+            } for p in weak_progress
+        ]
+
+        return Response({
+            'total_sessions': total_sessions,
+            'overall_accuracy': overall_accuracy,
+            'user_level': user.level,
+            'experience_points': user.experience_points,
+            'daily_labels': daily_labels,
+            'daily_correct': daily_correct,
+            'daily_total': daily_total,
+            'type_labels': type_labels,
+            'type_counts': type_counts,
+            'weak_topics': weak_topics,
+        })
 
 
-class ExerciseTypeListView(BaseExerciseListView):
-    """Конкретный класс для списка типов упражнений."""
-    
+
+
+
+
+class ExerciseTypeList(generics.ListCreateAPIView):
+    queryset = ExerciseType.objects.all().order_by('order')
+    serializer_class = ExerciseTypeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class ExerciseTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ExerciseType.objects.all()
+    serializer_class = ExerciseTypeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class DifficultyLevelList(generics.ListAPIView):
+    queryset = DifficultyLevel.objects.all()
+    serializer_class = DifficultyLevelSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class ExerciseConfigList(generics.ListCreateAPIView):
+    serializer_class = ExerciseConfigSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        return ExerciseType.objects.all().order_by('order')
-    
-    def get_serializer_class(self):
-        return ExerciseTypeSerializer
+        user = self.request.user
+        return ExerciseConfig.objects.filter(
+            models.Q(creator=user) | models.Q(is_public=True)
+        ).distinct().order_by('-created_at')
 
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
 
-class ExerciseConfigListView(BaseExerciseListView):
-    """Конкретный класс для списка конфигураций."""
-    
+class ExerciseConfigDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ExerciseConfigSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        return ExerciseConfig.objects.all().order_by('-created_at')
+        user = self.request.user
+        return ExerciseConfig.objects.filter(
+            models.Q(creator=user) | models.Q(is_public=True)
+        ).distinct()
+
+    def perform_update(self, serializer):
+        if self.get_object().creator != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Вы не можете редактировать чужой тренажёр")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.creator != self.request.user:
+            raise PermissionDenied("Вы не можете удалить чужой тренажёр")
+        instance.delete()
+
+class ExerciseSessionList(generics.ListCreateAPIView):
+    serializer_class = ExerciseSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return ExerciseSession.objects.filter(user=self.request.user).order_by('-started_at')
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ExerciseSessionDetail(generics.RetrieveUpdateAPIView):
+    serializer_class = ExerciseSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return ExerciseSession.objects.filter(user=self.request.user)
+
+class UserProgressList(generics.ListCreateAPIView):
+    serializer_class = UserProgressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return UserProgress.objects.filter(user=self.request.user)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class UserProgressDetail(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProgressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return UserProgress.objects.filter(user=self.request.user)
     
-    def get_serializer_class(self):
-        return ExerciseConfigSerializer
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_user_progress(request):
+    user = request.user
+    exercise_type_id = request.data.get('exercise_type')
+    element_key = request.data.get('element_key')
+    element_name = request.data.get('element_name')
+    was_correct = request.data.get('was_correct', False)
+
+    if not all([exercise_type_id, element_key, element_name]):
+        return Response({'error': 'Missing fields'}, status=status.HTTP_400_BAD_REQUEST)
+
+    progress, created = UserProgress.objects.get_or_create(
+        user=user,
+        exercise_type_id=exercise_type_id,
+        element_key=element_key,
+        defaults={'element_name': element_name}
+    )
+    progress.total_attempts += 1
+    if was_correct:
+        progress.correct_attempts += 1
+    progress.mastery_level = progress.correct_attempts / progress.total_attempts
+    progress.save()
+    return Response({'status': 'ok'})

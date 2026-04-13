@@ -1,0 +1,70 @@
+.constructor-container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: white;
+  border-radius: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  padding: 30px;
+  font-family: 'Nunito', sans-serif;
+}
+.constructor-container h1 {
+  font-size: 32px;
+  font-weight: 800;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 30px;
+}
+.form-group {
+  margin-bottom: 25px;
+}
+.form-group label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e5e7eb;
+  border-radius: 20px;
+  font-size: 16px;
+  transition: 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #58cc71, #3daa58);
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 60px;
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(88,204,113,0.3);
+}
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.error {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
