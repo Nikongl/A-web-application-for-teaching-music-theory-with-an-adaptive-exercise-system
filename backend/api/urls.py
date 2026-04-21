@@ -27,4 +27,14 @@ urlpatterns = [
     path('user-detailed-statistics/', views.UserDetailedStatisticsView.as_view(), name='user-detailed-statistics'),
     
     path('user-progress/update/', views.update_user_progress, name='update-user-progress'),
+
+    path('public-configs/', views.PublicExerciseConfigList.as_view(), name='public-configs'),
+
+    path('update-profile/', views.UpdateProfileView.as_view(), name='update-profile'),
+
+    path('user-achievements/', views.UserAchievementsView.as_view(), name='user-achievements'),
+
+    path('user-profile/', views.UserProfileView.as_view(), name='user-profile'),
+
+    path('next-question/', views.NextQuestionView.as_view(), name='next-question'),
 ]

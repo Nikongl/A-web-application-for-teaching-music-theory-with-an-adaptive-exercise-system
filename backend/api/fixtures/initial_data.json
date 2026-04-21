@@ -120,4 +120,66 @@
             "condition_value": 7
         }
     }
+
+    ,
+    {
+        "model": "api.achievement",
+        "pk": 6,
+        "fields": {
+            "name": "5 тренировок",
+            "code": "5_sessions",
+            "description": "Завершить 5 тренировок",
+            "icon": "🎖️",
+            "condition_type": "total_sessions",
+            "condition_value": 5
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 7,
+        "fields": {
+            "name": "8 тренировок",
+            "code": "8_sessions",
+            "description": "Завершить 8 тренировок",
+            "icon": "🎯",
+            "condition_type": "total_sessions",
+            "condition_value": 8
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 8,
+        "fields": {
+            "name": "10 тренировок",
+            "code": "10_sessions",
+            "description": "Завершить 10 тренировок",
+            "icon": "🏆",
+            "condition_type": "total_sessions",
+            "condition_value": 10
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 9,
+        "fields": {
+            "name": "100 правильных ответов",
+            "code": "100_correct",
+            "description": "Дать 100 правильных ответов",
+            "icon": "🌟",
+            "condition_type": "correct_answers",
+            "condition_value": 100
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 10,
+        "fields": {
+            "name": "5 уровень",
+            "code": "level_5",
+            "description": "Достичь 5 уровня",
+            "icon": "⭐",
+            "condition_type": "level",
+            "condition_value": 5
+        }
+    }
 ]

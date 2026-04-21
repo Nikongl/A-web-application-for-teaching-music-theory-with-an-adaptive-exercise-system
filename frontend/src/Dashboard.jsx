@@ -3,103 +3,229 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Dashboard.css';
 
-const Dashboard = ({ user, onLogout }) => {
+const Dashboard = ({ onLogout }) => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [createdExercises, setCreatedExercises] = useState([]);
+  const [recentSessions, setRecentSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-  const fetchMyConfigs = async () => {
-    if (!user) return;
-    console.log('User object in Dashboard:', user); // должен быть id
-    try {
-      const response = await axios.get('/api/configs/');
-      console.log('All configs from API:', response.data);
-      // Фильтруем по creator (число)
-      const myConfigs = response.data.filter(cfg => cfg.creator === user.pk);
-      // const myConfigs = response.data;
-      console.log('User pk:', user.pk);
-      console.log('First config creator:', response.data[0]?.creator);
-      console.log('Filtered my configs:', myConfigs);
-      console.log('user.username:', user?.username);
-      setCreatedExercises(myConfigs);
-    } catch (err) {
-      console.error('Error fetching configs:', err);
-    } finally {
-      setLoading(false);
+  const handleDelete = async (id) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот тренажёр?')) {
+      try {
+        await axios.delete(`/api/configs/${id}/`);
+        setCreatedExercises(prev => prev.filter(ex => ex.id !== id));
+      } catch (err) {
+        console.error('Ошибка удаления', err);
+        alert('Не удалось удалить тренажёр');
+      }
     }
   };
-  fetchMyConfigs();
-}, [user]);
+
+  const fetchUserData = async () => {
+    try {
+      const res = await axios.get('/api/user-profile/');
+      setUser(res.data);
+      return res.data;
+    } catch (err) {
+      console.error('Ошибка загрузки профиля:', err);
+      return null;
+    }
+  };
+
+  const fetchRecentSessions = async () => {
+    try {
+      const res = await axios.get('/api/sessions/');
+      const completed = res.data
+        .filter(s => s.status === 'completed')
+        .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))
+        .slice(0, 3);
+      setRecentSessions(completed);
+    } catch (err) {
+      console.error('Ошибка загрузки сессий', err);
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      const userData = await fetchUserData();
+      if (userData) {
+        try {
+          const configsRes = await axios.get('/api/configs/');
+          let myConfigs;
+          if (userData.id) {
+            myConfigs = configsRes.data.filter(cfg => cfg.creator === userData.id);
+          } else {
+            myConfigs = configsRes.data.filter(cfg => cfg.creator_name === userData.username);
+          }
+          setCreatedExercises(myConfigs);
+          await fetchRecentSessions();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      setLoading(false);
+    };
+    loadData();
+  }, []);
+
+  const continueLearning = () => {
+    if (createdExercises.length > 0) {
+      navigate(`/exercise/${createdExercises[0].id}`);
+    } else {
+      navigate('/constructor');
+    }
+  };
+
+  if (loading || !user) return <div className="dashboard-container">Загрузка...</div>;
 
   const userData = {
-    name: user?.username || user?.email?.split('@')[0] || 'Гость',
-    level: user?.level || 1,
-    xp: user?.experience_points || 0,
-    nextLevelXp: 100,
-    streak: user?.streak || 0,
-    lastExercises: user?.lastExercises || [],
+    name: user.username || user.email?.split('@')[0] || 'Гость',
+    level: user.level || 1,
+    xp: user.experience_points || 0,
+    streak: user.streak || 0,
   };
-  const xpPercent = (userData.xp / userData.nextLevelXp) * 100;
-  console.log('Rendering, createdExercises length:', createdExercises.length);
+
+  const xpForCurrentLevel = userData.xp % 100;
+  const xpNeededForNext = 100 - xpForCurrentLevel;
+  const progressPercent = (xpForCurrentLevel / 100) * 100;
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div className="user-greeting">
-          <h1>Привет, {userData.name}! 👋</h1>
-          <p>Уровень {userData.level} • Серия: {userData.streak} дней 🔥</p>
-          <button onClick={onLogout} className="logout-btn">🚪 Выйти</button>
+      {/* Верхняя карточка пользователя */}
+      <div className="user-card">
+        <div className="user-info">
+          <div className="avatar-icon">
+            <i className="fas fa-user-circle"></i>
+          </div>
+          <div className="user-text">
+            <h1>Привет, {userData.name}!</h1>
+            <div className="user-stats">
+              <span className="level-badge">
+                <i className="fas fa-star"></i> Уровень {userData.level}
+              </span>
+              {/* <span className="streak-badge">
+                <i className="fas fa-fire"></i> {userData.streak} дней
+              </span> */}
+            </div>
+          </div>
         </div>
-        <div className="xp-card">
-          <div className="xp-label"><span>Опыт</span><span>{userData.xp} / {userData.nextLevelXp} XP</span></div>
-          <div className="xp-bar"><div className="xp-fill" style={{ width: `${xpPercent}%` }}></div></div>
+        <button onClick={onLogout} className="logout-btn">
+          <i className="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+
+      {/* XP прогресс */}
+      <div className="xp-card">
+        <div className="xp-header">
+          <span><i className="fas fa-chart-simple"></i> Опыт</span>
+          <span>{userData.xp} / 100 XP</span>
+        </div>
+        <div className="xp-bar">
+          <div className="xp-fill" style={{ width: `${progressPercent}%` }} />
+        </div>
+        <div className="xp-footer">
+          До следующего уровня: {xpNeededForNext} XP
         </div>
       </div>
-      <div className="continue-card">
-        <button className="continue-btn" onClick={() => navigate('/exercise')}>🚀 Продолжить обучение</button>
-        <p>Пройди тренировку, чтобы не терять серию</p>
-      </div>
+
+      {/* Главная кнопка */}
+      <button className="continue-btn" onClick={continueLearning}>
+        <i className="fas fa-play"></i> Продолжить обучение
+      </button>
+
+      {/* Недавние тренировки */}
       <section className="dashboard-section">
-        <h2>📚 Недавние тренировки</h2>
-        <div className="cards-grid">
-          {userData.lastExercises.length === 0 ? <div className="exercise-card">Нет завершённых тренировок</div> :
-            userData.lastExercises.map(ex => (
-              <div key={ex.id} className="exercise-card">
-                <h3>{ex.title}</h3>
-                <div className="card-meta"><span className="type-badge">{ex.type === 'interval' ? '🎵 Интервалы' : '🎹 Аккорды'}</span><span>{ex.tasks} заданий</span></div>
-                <div className="progress-card-bar"><div className="progress-card-fill" style={{ width: `${ex.progress}%` }}></div></div>
-                <button className="card-btn" onClick={() => navigate('/exercise')}>Продолжить →</button>
+        <h2 className="section-title">
+          <i className="fas fa-clock"></i> Недавние тренировки
+        </h2>
+        <div className="cards-list">
+          {recentSessions.length === 0 ? (
+            <div className="empty-card">
+              <i className="fas fa-dumbbell"></i>
+              <p>Нет завершённых тренировок</p>
+            </div>
+          ) : (
+            recentSessions.map(session => (
+              <div key={session.id} className="card">
+                <div className="card-icon">
+                  <i className="fas fa-check-circle"></i>
+                </div>
+                <div className="card-content">
+                  <h3>{session.config_name || 'Тренировка'}</h3>
+                  <div className="card-meta">
+                    <span><i className="fas fa-check"></i> {session.correct_answers} / {session.answered_questions}</span>
+                    <span><i className="fas fa-calendar"></i> {new Date(session.completed_at).toLocaleDateString()}</span>
+                  </div>
+                  <button className="card-btn repeat" onClick={() => navigate(`/exercise/${session.config}`)}>
+                    <i className="fas fa-rotate-right"></i> Повторить
+                  </button>
+                </div>
               </div>
             ))
-          }
+          )}
         </div>
       </section>
+
+      {/* Мои тренажёры */}
       <section className="dashboard-section">
-        <h2>🛠 Мои тренажёры</h2>
-        <div className="cards-grid">
-          {loading ? <div className="exercise-card">Загрузка...</div> :
-            createdExercises.length === 0 ? <div className="exercise-card">Вы ещё не создали ни одного тренажёра</div> :
+        <h2 className="section-title">
+          <i className="fas fa-cubes"></i> Мои тренажёры
+        </h2>
+        <div className="cards-list">
+          {createdExercises.length === 0 ? (
+            <div className="empty-card">
+              <i className="fas fa-plus-circle"></i>
+              <p>Вы ещё не создали ни одного тренажёра</p>
+            </div>
+          ) : (
             createdExercises.map(ex => (
-              <div key={ex.id} className="exercise-card created-card">
-                <h3>{ex.name}</h3>
-                <div className="card-meta"><span className="type-badge">{ex.exercise_type_name}</span><span>{ex.questions_per_session} заданий</span></div>
-                {/* <button className="card-btn secondary" onClick={() => navigate('/constructor')}>Редактировать ✏️</button> */}
-                <button className="card-btn secondary" onClick={() => navigate(`/exercise/${ex.id}`)}>▶️ Начать</button>
+              <div key={ex.id} className="card created-card">
+                <div className="card-icon">
+                  <i className="fas fa-puzzle-piece"></i>
+                </div>
+                <div className="card-content">
+                  <h3>{ex.name}</h3>
+                  <div className="card-meta">
+                    <span className="type-badge">{ex.exercise_type_name}</span>
+                    <span><i className="fas fa-list"></i> {ex.questions_per_session} заданий</span>
+                  </div>
+                  <div className="card-actions">
+                    <button className="action-btn edit" onClick={() => navigate(`/constructor/${ex.id}`)}>
+                      <i className="fas fa-pen"></i>
+                    </button>
+                    <button className="action-btn delete" onClick={() => handleDelete(ex.id)}>
+                      <i className="fas fa-trash-alt"></i>
+                    </button>
+                    <button className="action-btn start" onClick={() => navigate(`/exercise/${ex.id}`)}>
+                      <i className="fas fa-play"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             ))
-          }
-          <div className="exercise-card add-card" onClick={() => navigate('/constructor')}>
-            <div className="add-icon">+</div>
+          )}
+          <div className="add-card" onClick={() => navigate('/constructor')}>
+            <i className="fas fa-plus-circle add-icon"></i>
             <p>Создать новый тренажёр</p>
           </div>
         </div>
       </section>
+
+      {/* Нижняя навигация */}
       <nav className="bottom-nav">
-        <button className="nav-btn active" onClick={() => navigate('/')}>🏠 Главная</button>
-        <button className="nav-btn" onClick={() => navigate('/statistics')}>📊 Статистика</button>
-        <button className="nav-btn" onClick={() => navigate('/gallery')}>🌍 Галерея</button>
-        <button className="nav-btn" onClick={() => navigate('/profile')}>👤 Профиль</button>
+        <button className="nav-icon active" onClick={() => navigate('/')}>
+          <i className="fas fa-home"></i>
+        </button>
+        <button className="nav-icon" onClick={() => navigate('/statistics')}>
+          <i className="fas fa-chart-line"></i>
+        </button>
+        <button className="nav-icon" onClick={() => navigate('/gallery')}>
+          <i className="fas fa-images"></i>
+        </button>
+        <button className="nav-icon" onClick={() => navigate('/profile')}>
+          <i className="fas fa-user"></i>
+        </button>
       </nav>
     </div>
   );

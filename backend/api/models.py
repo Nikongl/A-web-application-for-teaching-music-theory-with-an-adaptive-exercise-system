@@ -32,7 +32,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     level = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(100)])
     experience_points = models.IntegerField(default=0)
     daily_goal = models.IntegerField(default=10)
-    avatar = models.URLField(blank=True, null=True)
+    # avatar = models.URLField(blank=True, null=True)
+    # Только изменения: замените поле avatar на URLField
+    avatar = models.URLField(blank=True, null=True, verbose_name="Аватар")
+    # avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, verbose_name="Аватар")
     bio = models.TextField(blank=True, max_length=500)
     is_premium = models.BooleanField(default=False)
     last_active = models.DateTimeField(default=timezone.now)
@@ -40,6 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     objects = UserManager()
+    
     
     class Meta:
         verbose_name = "Пользователь"
@@ -120,6 +124,7 @@ class ExerciseSession(models.Model):
     total_questions = models.IntegerField(default=0)
     answered_questions = models.IntegerField(default=0)
     correct_answers = models.IntegerField(default=0)
+    last_element_key = models.CharField(max_length=100, blank=True, null=True)
     
     @property
     def accuracy(self):

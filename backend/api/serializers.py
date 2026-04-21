@@ -1,5 +1,9 @@
 from rest_framework import serializers
-from .models import ExerciseType, DifficultyLevel, ExerciseConfig, ExerciseSession, UserProgress
+from django.contrib.auth import get_user_model
+from .models import (
+    ExerciseType, DifficultyLevel, ExerciseConfig,
+    ExerciseSession, UserProgress, Achievement, UserAchievement
+)
 
 class ExerciseTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,10 +40,31 @@ class ExerciseSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExerciseSession
         fields = '__all__'
-        read_only_fields = ['id', 'started_at', 'user', 'completed_at', 'answered_questions', 'correct_answers']
+        read_only_fields = ['id', 'started_at', 'user']
 
 class UserProgressSerializer(serializers.ModelSerializer):
     exercise_type_name = serializers.CharField(source='exercise_type.name', read_only=True)
     class Meta:
         model = UserProgress
         fields = '__all__'
+
+class AchievementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Achievement
+        fields = ['id', 'name', 'description', 'icon', 'code', 'condition_type', 'condition_value']
+
+class UserAchievementSerializer(serializers.ModelSerializer):
+    achievement = AchievementSerializer(read_only=True)
+    class Meta:
+        model = UserAchievement
+        fields = ['id', 'achievement', 'earned_at']
+
+
+
+User = get_user_model()
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'bio', 'avatar', 'level', 'experience_points']
+        read_only_fields = ['id', 'email', 'level', 'experience_points']

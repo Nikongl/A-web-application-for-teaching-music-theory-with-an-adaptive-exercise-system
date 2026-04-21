@@ -155,3 +155,55 @@ export const playChord = async (notes) => {
     source.stop(ctx.currentTime + 1.5);
   });
 };
+
+
+// Добавить в конец файла
+export const generateQuestionFromBackend = (backendQuestion, config, difficultyName) => {
+  const { type, text, correctNote, intervalName, lowerNote, upperNote, chordName, tonicNote, chordNotes } = backendQuestion;
+  if (type === 'note') {
+    const choices = generateChoicesForNote(correctNote, difficultyName);
+    return {
+      type: 'note',
+      text: text,
+      correctAnswer: correctNote,
+      correctNoteName: correctNote,
+      choices,
+      play: () => playNote(correctNote),
+      checkPiano: (userNote) => userNote === correctNote,
+      checkChoice: (selected) => selected === correctNote,
+      answerMode: Math.random() < 0.5 ? 'piano' : 'choice',
+    };
+  } else if (type === 'interval') {
+    const choices = generateChoicesForInterval(intervalName);
+    return {
+      type: 'interval',
+      text: text,
+      correctAnswer: upperNote,
+      correctNoteName: upperNote,
+      lowerNote: lowerNote,
+      hintNote: lowerNote,
+      upperNote: upperNote,
+      intervalName: intervalName,
+      choices,
+      play: () => playInterval(lowerNote, upperNote),
+      checkPiano: (userNote) => userNote === upperNote,
+      checkChoice: (selected) => selected === intervalName,
+      answerMode: Math.random() < 0.5 ? 'piano' : 'choice',
+    };
+  } else {
+    const choices = generateChoicesForChord(chordName);
+    return {
+      type: 'chord',
+      text: text,
+      correctAnswer: tonicNote,
+      correctNoteName: tonicNote,
+      chordNotes: chordNotes,
+      chordName: chordName,
+      choices,
+      play: () => playChord(chordNotes),
+      checkPiano: (userNote) => userNote === tonicNote,
+      checkChoice: (selected) => selected === chordName,
+      answerMode: Math.random() < 0.5 ? 'piano' : 'choice',
+    };
+  }
+};

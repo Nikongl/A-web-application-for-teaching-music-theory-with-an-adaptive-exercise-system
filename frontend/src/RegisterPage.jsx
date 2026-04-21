@@ -25,7 +25,6 @@ const RegisterPage = ({ onLogin }) => {
     }
     setLoading(true);
     try {
-      // Отправляем регистрацию
       const response = await axios.post('/auth/registration/', {
         username,
         email,
@@ -33,10 +32,8 @@ const RegisterPage = ({ onLogin }) => {
         password2,
       });
       const { access, refresh } = response.data;
-      // Сохраняем токены
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
-      // Получаем данные пользователя
       const userResponse = await axios.get('/auth/user/', {
         headers: { Authorization: `Bearer ${access}` }
       });
@@ -53,23 +50,52 @@ const RegisterPage = ({ onLogin }) => {
 
   return (
     <div className="auth-container">
+      <button className="back-button" onClick={() => navigate('/')}>
+        <i className="fas fa-arrow-left"></i>
+      </button>
       <div className="auth-card">
-        <h2>Регистрация</h2>
-        {error && <div className="auth-error">{error}</div>}
+        <h2>Создать аккаунт</h2>
+        <div className="auth-subtitle">Начните свой музыкальный путь</div>
+        {error && <div className="auth-error"><i className="fas fa-exclamation-triangle"></i> {error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <input type="text" placeholder="Имя пользователя" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            <input 
+              type="text" 
+              placeholder="Имя пользователя" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              required 
+            />
           </div>
           <div className="form-group">
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input 
+              type="email" 
+              placeholder="Email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+            />
           </div>
           <div className="form-group">
-            <input type="password" placeholder="Пароль (минимум 8 символов)" value={password1} onChange={(e) => setPassword1(e.target.value)} required />
+            <input 
+              type="password" 
+              placeholder="Пароль (минимум 8 символов)" 
+              value={password1} 
+              onChange={(e) => setPassword1(e.target.value)} 
+              required 
+            />
           </div>
           <div className="form-group">
-            <input type="password" placeholder="Подтвердите пароль" value={password2} onChange={(e) => setPassword2(e.target.value)} required />
+            <input 
+              type="password" 
+              placeholder="Подтвердите пароль" 
+              value={password2} 
+              onChange={(e) => setPassword2(e.target.value)} 
+              required 
+            />
           </div>
           <button type="submit" disabled={loading} className="auth-button-primary">
+            {loading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-user-plus"></i>}
             {loading ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>
         </form>
