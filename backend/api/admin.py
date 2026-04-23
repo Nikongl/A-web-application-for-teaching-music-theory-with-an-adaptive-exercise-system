@@ -1,8 +1,5 @@
 from django.contrib import admin
-from .models import (
-    User, ExerciseType, DifficultyLevel, ExerciseConfig,
-    ExerciseSession, Question, UserProgress, Achievement, UserAchievement
-)
+from .models import User, ExerciseType, DifficultyLevel, ExerciseConfig, ExerciseSession, Question, UserProgress, Achievement, UserAchievement
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -13,7 +10,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(ExerciseType)
 class ExerciseTypeAdmin(admin.ModelAdmin):
     list_display = ['name', 'code', 'icon', 'order']
-    list_editable = ['order']  # можно менять порядок прямо в списке
+    list_editable = ['order']
     search_fields = ['name', 'code']
 
 @admin.register(DifficultyLevel)
@@ -26,11 +23,10 @@ class ExerciseConfigAdmin(admin.ModelAdmin):
     list_display = ['name', 'creator', 'exercise_type', 'difficulty', 'is_public', 'times_used']
     list_filter = ['exercise_type', 'difficulty', 'is_public', 'created_at']
     search_fields = ['name', 'description']
-    raw_id_fields = ['creator']  # удобно для выбора пользователя
-    filter_horizontal = ['likes']  # удобно для выбора лайков
+    raw_id_fields = ['creator']
+    filter_horizontal = ['likes']
 
 class QuestionInline(admin.TabularInline):
-    """Вопросы внутри сессии"""
     model = Question
     extra = 0
     readonly_fields = ['created_at']
@@ -42,7 +38,6 @@ class ExerciseSessionAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'config__name']
     readonly_fields = ['started_at', 'completed_at']
     inlines = [QuestionInline]
-    
     def accuracy(self, obj):
         return f"{obj.accuracy:.1f}%"
     accuracy.short_description = "Точность"

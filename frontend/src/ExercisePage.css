@@ -1,0 +1,339 @@
+/* ExercisePage.css — современный, крупный, в стиле дашборда */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.exercise-container {
+  min-height: 100vh;
+  background: #f9fafb;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+  padding-bottom: 80px;
+}
+
+/* Кнопка "Назад" — яркая, зелёная */
+/* Кнопка "Назад" — круглая, с иконкой */
+.back-button {
+  background: #2e7d32;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 60px;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0 0 20px;
+  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.back-button:hover {
+  background: #1b5e20;
+  transform: scale(0.96);
+}
+
+/* Основной контент */
+.exercise-content {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 20px 40px;
+}
+
+/* Прогресс-бар */
+.progress-bar {
+  background: #e5e7eb;
+  border-radius: 100px;
+  height: 12px;
+  margin-bottom: 40px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: #4CAF50;
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.3s ease;
+}
+
+/* Карточка вопроса */
+.question-card {
+  background: white;
+  border-radius: 32px;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f2f5;
+}
+
+.question-card h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+
+/* Кнопка "Повторить звук" */
+.repeat-btn {
+  background: #e8f5e9;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 60px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2e7d32;
+  cursor: pointer;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.repeat-btn:hover {
+  background: #c8e6c9;
+  transform: scale(1.02);
+}
+
+.repeat-btn:active {
+  transform: scale(0.98);
+}
+
+/* Пианино (обёртка) */
+.piano-wrapper {
+  margin: 20px 0 30px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+/* Сетка 2×2 для Choice */
+.choices-grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 32px 0;
+}
+
+.choice-button {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 24px;
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 700;
+  font-size: 18px;
+  color: #1f2937;
+  text-align: left;
+  width: 100%;
+}
+
+.choice-button:hover:not(:disabled) {
+  border-color: #4CAF50;
+  background: #f0fdf4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+.choice-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.choice-letter {
+  background: #f3f4f6;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  color: #4b5563;
+  font-weight: 800;
+  font-size: 22px;
+  transition: all 0.2s;
+}
+
+.choice-button:hover .choice-letter {
+  background: #4CAF50;
+  color: white;
+}
+
+.choice-text {
+  flex: 1;
+}
+
+/* Фидбек */
+.feedback {
+  border-radius: 28px;
+  padding: 20px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: 20px;
+  animation: slideUp 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.feedback-correct {
+  background: #4CAF50;
+  color: white;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.feedback-wrong {
+  background: #f44336;
+  color: white;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Счёт */
+.score {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #1f2937;
+  background: white;
+  display: inline-block;
+  padding: 10px 24px;
+  border-radius: 60px;
+  margin-top: 32px;
+  width: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eef2ff;
+}
+
+/* Результат */
+.result-card {
+  background: white;
+  border-radius: 40px;
+  padding: 40px;
+  text-align: center;
+  max-width: 500px;
+  margin: 80px auto;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f2f5;
+}
+
+.result-card h2 {
+  font-size: 32px;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.result-card p {
+  font-size: 20px;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.restart-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 60px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: 0.2s;
+}
+
+.restart-btn:hover {
+  transform: scale(1.02);
+  background: #43a047;
+}
+
+/* Таймер */
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff3e0;
+  padding: 6px 16px;
+  border-radius: 60px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #e65100;
+  margin-top: 12px;
+}
+
+/* Активация звука */
+.activate-audio-card {
+  background: white;
+  border-radius: 40px;
+  padding: 40px;
+  text-align: center;
+  max-width: 400px;
+  margin: 100px auto;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
+}
+
+.activate-audio-card h2 {
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+.activate-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 60px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Адаптация под телефон */
+@media (max-width: 768px) {
+  .exercise-content {
+    padding: 16px;
+  }
+  
+  .question-card h2 {
+    font-size: 24px;
+  }
+  
+  .choice-button {
+    padding: 14px 12px;
+    font-size: 16px;
+  }
+  
+  .choice-letter {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .choices-grid-2x2 {
+    gap: 12px;
+  }
+  
+  .back-button {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+    margin: 16px 0 0 16px;
+  }
+}

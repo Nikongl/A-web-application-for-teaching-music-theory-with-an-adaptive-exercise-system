@@ -1,79 +1,63 @@
 [
+    
     {
         "model": "api.exercisetype",
         "pk": 1,
         "fields": {
-            "name": "Ноты",
-            "code": "notes",
-            "description": "Определение нот на нотном стане и клавиатуре",
-            "icon": "🎹",
-            "order": 1
+        "name": "Ноты",
+        "code": "notes",
+        "icon": "🎵",
+        "order": 1
         }
     },
     {
         "model": "api.exercisetype",
         "pk": 2,
         "fields": {
-            "name": "Интервалы",
-            "code": "intervals",
-            "description": "Определение музыкальных интервалов на слух",
-            "icon": "📏",
-            "order": 2
+        "name": "Интервалы",
+        "code": "intervals",
+        "icon": "🎵",
+        "order": 2
         }
     },
     {
         "model": "api.exercisetype",
         "pk": 3,
         "fields": {
-            "name": "Аккорды",
-            "code": "chords",
-            "description": "Определение аккордов и их обращений",
-            "icon": "🎸",
-            "order": 3
-        }
-    },
-    {
-        "model": "api.exercisetype",
-        "pk": 4,
-        "fields": {
-            "name": "Ритм",
-            "code": "rhythm",
-            "description": "Ритмические упражнения и диктанты",
-            "icon": "🥁",
-            "order": 4
+        "name": "Аккорды",
+        "code": "chords",
+        "icon": "🎵",
+        "order": 3
         }
     },
     {
         "model": "api.difficultylevel",
         "pk": 1,
         "fields": {
-            "name": "Начинающий",
-            "code": "beginner",
-            "value": 1,
-            "description": "Простые упражнения для новичков",
-            "color": "green"
+        "name": "Лёгкая",
+        "code": "easy",
+        "value": 1,
+        "color": "green"
         }
     },
     {
         "model": "api.difficultylevel",
         "pk": 2,
         "fields": {
-            "name": "Средний",
-            "code": "intermediate",
-            "value": 2,
-            "description": "Упражнения средней сложности",
-            "color": "orange"
+        "name": "Средняя",
+        "code": "medium",
+        "value": 2,
+        "color": "orange"
         }
     },
     {
         "model": "api.difficultylevel",
         "pk": 3,
         "fields": {
-            "name": "Продвинутый",
-            "code": "advanced",
-            "value": 3,
-            "description": "Сложные упражнения для опытных музыкантов",
-            "color": "red"
+        "name": "Сложная",
+        "code": "hard",
+        "value": 3,
+        "color": "red"
         }
     },
     {
@@ -134,6 +118,68 @@
             "icon": "🔥",
             "condition_type": "streak_days",
             "condition_value": 7
+        }
+    }
+
+    ,
+    {
+        "model": "api.achievement",
+        "pk": 6,
+        "fields": {
+            "name": "5 тренировок",
+            "code": "5_sessions",
+            "description": "Завершить 5 тренировок",
+            "icon": "🎖️",
+            "condition_type": "total_sessions",
+            "condition_value": 5
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 7,
+        "fields": {
+            "name": "8 тренировок",
+            "code": "8_sessions",
+            "description": "Завершить 8 тренировок",
+            "icon": "🎯",
+            "condition_type": "total_sessions",
+            "condition_value": 8
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 8,
+        "fields": {
+            "name": "10 тренировок",
+            "code": "10_sessions",
+            "description": "Завершить 10 тренировок",
+            "icon": "🏆",
+            "condition_type": "total_sessions",
+            "condition_value": 10
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 9,
+        "fields": {
+            "name": "100 правильных ответов",
+            "code": "100_correct",
+            "description": "Дать 100 правильных ответов",
+            "icon": "🌟",
+            "condition_type": "correct_answers",
+            "condition_value": 100
+        }
+    },
+    {
+        "model": "api.achievement",
+        "pk": 10,
+        "fields": {
+            "name": "5 уровень",
+            "code": "level_5",
+            "description": "Достичь 5 уровня",
+            "icon": "⭐",
+            "condition_type": "level",
+            "condition_value": 5
         }
     }
 ]

@@ -3,19 +3,38 @@ from . import views
 
 urlpatterns = [
     # Exercise Types
-    path('exercise-types/', views.exercise_type_list, name='exercise-type-list'),
-    path('exercise-types/<int:pk>/', views.exercise_type_detail, name='exercise-type-detail'),
-    
-    # Exercise Configs
-    path('exercise-configs/', views.exercise_config_list, name='exercise-config-list'),
-    path('exercise-configs/<int:pk>/', views.exercise_config_detail, name='exercise-config-detail'),
-    
-    # Sessions
-    path('sessions/', views.session_list, name='session-list'),
-    
-    # Progress
-    path('progress/', views.progress_list, name='progress-list'),
+    path('exercise-types/', views.ExerciseTypeList.as_view(), name='exercise-type-list'),
+    path('exercise-types/<int:pk>/', views.ExerciseTypeDetail.as_view(), name='exercise-type-detail'),
 
-    path('exercise-types-template/', views.ExerciseTypeListView.as_view(), name='exercise-types-template'),
-    path('exercise-configs-template/', views.ExerciseConfigListView.as_view(), name='exercise-configs-template'),
+    # Difficulty Levels
+    path('difficulties/', views.DifficultyLevelList.as_view(), name='difficulty-list'),
+
+    # Exercise Configs (конструктор)
+    path('configs/', views.ExerciseConfigList.as_view(), name='config-list'),
+    path('configs/<int:pk>/', views.ExerciseConfigDetail.as_view(), name='config-detail'),
+
+    # Sessions
+    path('sessions/', views.ExerciseSessionList.as_view(), name='session-list'),
+    path('sessions/<int:pk>/', views.ExerciseSessionDetail.as_view(), name='session-detail'),
+
+    # Progress
+    path('progress/', views.UserProgressList.as_view(), name='progress-list'),
+    path('progress/<int:pk>/', views.UserProgressDetail.as_view(), name='progress-detail'),
+
+    path('user-statistics/', views.UserStatisticsView.as_view(), name='user-statistics'),
+
+
+    path('user-detailed-statistics/', views.UserDetailedStatisticsView.as_view(), name='user-detailed-statistics'),
+    
+    path('user-progress/update/', views.update_user_progress, name='update-user-progress'),
+
+    path('public-configs/', views.PublicExerciseConfigList.as_view(), name='public-configs'),
+
+    path('update-profile/', views.UpdateProfileView.as_view(), name='update-profile'),
+
+    path('user-achievements/', views.UserAchievementsView.as_view(), name='user-achievements'),
+
+    path('user-profile/', views.UserProfileView.as_view(), name='user-profile'),
+
+    path('next-question/', views.NextQuestionView.as_view(), name='next-question'),
 ]

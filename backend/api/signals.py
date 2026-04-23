@@ -1,19 +1,23 @@
-# signals.py
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import User, ExerciseSession, Achievement, UserAchievement
+from django.db import models
+from .models import ExerciseSession, User, Achievement, UserAchievement, UserProgress
+from .views import check_and_grant_achievements  # импортируем общую функцию
 
 @receiver(post_save, sender=ExerciseSession)
-def check_achievements_on_session_complete(sender, instance, created, **kwargs):
-    """Наблюдатель: при завершении сессии проверяем достижения."""
+def handle_session_completion(sender, instance, created, **kwargs):
+    print(f"🔔 Сигнал: сессия {instance.id}, created={created}, статус={instance.status}")
     if not created and instance.status == 'completed':
         user = instance.user
-        # Проверяем, например, достижение за 10 сессий
-        sessions_count = ExerciseSession.objects.filter(
-            user=user, status='completed'
-        ).count()
-        if sessions_count >= 10:
-            achievement = Achievement.objects.get(code='10_sessions')
-            UserAchievement.objects.get_or_create(
-                user=user, achievement=achievement
-            )
+        print(f"🎉 Сессия завершена! Пользователь {user.email}, правильных ответов: {instance.correct_answers}")
+        
+        # Начисление опыта
+        xp_earned = instance.correct_answers * 10
+        if xp_earned > 0:
+            user.add_experience(xp_earned)
+            print(f"💰 Начислено {xp_earned} XP")
+        
+        # Выдача достижений через общую функцию
+        check_and_grant_achievements(user)
+    else:
+        print(f"⏭️ Сигнал проигнорирован (статус не 'completed' или создана новая сессия)")
