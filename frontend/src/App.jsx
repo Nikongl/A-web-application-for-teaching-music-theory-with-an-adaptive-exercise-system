@@ -13,6 +13,9 @@ import GalleryPage from './GalleryPage';
 import ProfilePage from './ProfilePage';
 import EditProfilePage from './EditProfilePage';
 
+
+
+axios.defaults.baseURL = 'https://nikongl-a-web-application-for-teaching-music-theory-w-c4c9.twc1.net';
 axios.interceptors.request.use(config => {
   const token = localStorage.getItem('access_token');
   if (token) {
