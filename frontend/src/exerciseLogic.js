@@ -329,7 +329,6 @@
 //     answerMode,
 //   };
 // };
-
 import soundEngine from './soundEngine';
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -512,20 +511,8 @@ export const generateSpecificChordChoices = (chordName, config, difficultyName) 
   return result.sort(() => Math.random() - 0.5);
 };
 
-// ========== ВАРИАНТЫ ДЛЯ НЕСКОЛЬКИХ ТИПОВ АККОРДОВ (без повторов) ==========
-export const generateChoicesForChordType = (chordName, allTypes) => {
-  const chordType = chordName.split(' ').pop();
-  // allTypes — список выбранных типов аккордов (из настроек)
-  if (!allTypes.includes(chordType)) allTypes.push(chordType);
-  // Возвращаем массив объектов: { display: "G мажор", value: "Мажор" }
-  // Чтобы в вариантах показывался полный аккорд (G мажор, D минор и т.д.)
-  // Но у нас нет тоники для других вариантов, поэтому проще показывать названия типов
-  // Либо генерировать случайные тоники. Сделаем второй вариант — показываем типы (Мажор, Минор)
-  return allTypes.sort(() => Math.random() - 0.5);
-};
-
-// ========== НОВАЯ ФУНКЦИЯ: варианты для нескольких типов аккордов с полными названиями ==========
-// Генерирует варианты вида "C мажор", "D минор" для выбранных типов
+// ========== ВАРИАНТЫ ДЛЯ НЕСКОЛЬКИХ ТИПОВ АККОРДОВ (полные названия) ==========
+// Генерирует варианты типа "G мажор", "C минор" для выбранных типов
 export const generateFullChordChoices = (correctChordName, allTypes, config, difficultyName) => {
   const octaveRange = getOctaveRange(difficultyName);
   const minOct = config.settings?.min_octave || octaveRange.min;
@@ -540,7 +527,6 @@ export const generateFullChordChoices = (correctChordName, allTypes, config, dif
   const choicesSet = new Set();
   choicesSet.add(correctChordName);
   
-  // Если типов меньше 4, добавляем случайные аккорды с разными тониками и типами
   while (choicesSet.size < 4) {
     const tonic = allowedTonics[Math.floor(Math.random() * allowedTonics.length)];
     const chordType = allTypes[Math.floor(Math.random() * allTypes.length)];
@@ -553,7 +539,6 @@ export const generateFullChordChoices = (correctChordName, allTypes, config, dif
 
 // ========== ВАРИАНТЫ ДЛЯ НЕСКОЛЬКИХ ИНТЕРВАЛОВ (без повторов) ==========
 export const generateChoicesForIntervalType = (correctName, allIntervals) => {
-  // allIntervals — список выбранных интервалов
   if (!allIntervals.includes(correctName)) allIntervals.push(correctName);
   return allIntervals.sort(() => Math.random() - 0.5);
 };
@@ -630,11 +615,9 @@ export const generateQuestionFromBackend = (backendQuestion, config, difficultyN
     let correctChoice;
     if (answerMode === 'choice') {
       if (elementsCount === 1) {
-        // Один интервал: варианты – конкретные интервалы с нотами
         choices = generateSpecificIntervalChoices(intervalName, config, difficultyName, lowerNote, upperNote);
         correctChoice = `${lowerNote}→${upperNote}`;
       } else {
-        // Несколько интервалов: варианты – названия интервалов (без повторов)
         choices = generateChoicesForIntervalType(intervalName, allTypes);
         correctChoice = intervalName;
       }
@@ -659,36 +642,33 @@ export const generateQuestionFromBackend = (backendQuestion, config, difficultyN
     };
   }
   
-  // ========== АККОРДЫ (ИСПРАВЛЕННЫЙ БЛОК) ==========
-  let choices = [];
-  let correctChoice = '';
-  
-  if (answerMode === 'choice') {
-    if (elementsCount === 1) {
-      // Один тип аккорда: варианты – конкретные аккорды (G мажор, D мажор и т.д.)
-      choices = generateSpecificChordChoices(chordName, config, difficultyName);
-      correctChoice = chordName;
-    } else {
-      // Несколько типов (например, мажор и минор)
-      // Показываем варианты с полными названиями: "G мажор", "C минор" и т.д.
-      // correctChoice в этом случае — полное название аккорда (например, "G мажор")
-      // allTypes — список типов из настроек (['Мажор', 'Минор'])
-      correctChoice = chordName;
-      choices = generateFullChordChoices(chordName, allTypes, config, difficultyName);
+  // ========== АККОРДЫ (всегда полное название: G мажор, C минор) ==========
+  if (type === 'chord') {
+    let choices = [];
+    let correctChoice = chordName; // всегда полное название
+    
+    if (answerMode === 'choice') {
+      if (elementsCount === 1) {
+        // Один тип аккорда: варианты – конкретные аккорды с разными тониками
+        choices = generateSpecificChordChoices(chordName, config, difficultyName);
+      } else {
+        // Несколько типов: варианты – полные названия со случайными тониками
+        choices = generateFullChordChoices(chordName, allTypes, config, difficultyName);
+      }
     }
+    
+    return {
+      type: 'chord',
+      text,
+      correctAnswer: tonicNote,
+      correctNoteName: tonicNote,
+      chordNotes,
+      chordName,
+      choices,
+      play: () => playChord(chordNotes),
+      checkPiano: (userNote) => userNote === tonicNote,
+      checkChoice: (selected) => selected === correctChoice,
+      answerMode,
+    };
   }
-  
-  return {
-    type: 'chord',
-    text,
-    correctAnswer: tonicNote,
-    correctNoteName: tonicNote,
-    chordNotes,
-    chordName,
-    choices,
-    play: () => playChord(chordNotes),
-    checkPiano: (userNote) => userNote === tonicNote,
-    checkChoice: (selected) => selected === correctChoice,
-    answerMode,
-  };
 };
