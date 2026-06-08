@@ -48,7 +48,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://nikongl-a-web-application-for-teaching-music-theory-w-b06b.twc1.net",  # ← добавь эту строку
+    "https://nikongl-a-web-application-for-teaching-music-theory-w-61d5.twc1.net",
 ]
 
 ROOT_URLCONF = "backend_project.urls"
