@@ -186,7 +186,7 @@ const ExercisePage = ({ onRefreshUser }) => {
       } else if (q.type === 'interval') {
         correctAnswerText = `${q.intervalName} (${q.lowerNote} → ${q.upperNote})`;
       } else if (q.type === 'chord') {
-        correctAnswerText = q.correctAnswer;
+        correctAnswerText = q.chordName.split(' ').pop();
       }
       setFeedback({ correct: false, message: `Неправильно. Правильный ответ: ${correctAnswerText}` });
     }
